@@ -9,6 +9,6 @@ Because these two records were such a big change in style for Taylor, I think it
 
 I have to say, I find it difficult to identify the specific tracks I want to compare, so I would just like to start with the records and maybe the specific tracks will stand out when I do a little more research.
 
-Changes!!
+
 
 

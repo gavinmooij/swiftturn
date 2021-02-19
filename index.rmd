@@ -1,23 +1,17 @@
 ---
 title: "swiftturn by Gavin Mooij"
-output: html_document
+output: 
+  flexdashboard::flex_dashboard:
+    storyboard: true
 ---
-<b>My corpus will be about the change that Taylor Swift has been through stylisticly throughout her recent albums.</b>
-
-In july 2020 she suddenly released her eight record, called 'folklore', which was a 180 degree turn from the (pop) sound she used to make. With the record she went back to her country roots and critics called it her best work yet. I was not the biggest Swift fan before this record dropped, but folklore changed the game for me. Every single song on the record is so beautifully written and it became my most listened to album of 2020. Taylor herself was also inspired by this sudden change in her style, and just 5 months later she released folklore's 'sister record' called 'evermore' in december. Where she used to have a big roll-out for a new record and where there would be a couple of years between them to build up hype, these two records were announced the day before they were released. Both folklore and evermore are now considered her two best records she ever made, and I can't stop myself from listening to them over and over again. 
-
-Because these two records were such a big change in style for Taylor, I think it would be really interesting to compare them to her earlier work and see if the songs are actually as different as I believe them to be. Or maybe this sound was always hidden away in her bubblegum pop records of the past and it just never showed? Besides comparing folklore and evermore to her earlier records such as '1989', 'lover' and 'red', I think it would also be interesting to compare folklore and evermore with eachother. Because they are in fact "sister albums", how much are they alike? 
-
-The first thing I wanted to do, was just compare every record she released and just observer where differences lie. 
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE,echo=FALSE)
-```
 
-```{r}
 library(tidyverse)
 library(spotifyr)
 library(ggrepel)
+library(compmus)
+library(flexdashboard)
+library(plotly)
 
 evermore <- get_playlist_audio_features("","4YtuQ3FLB2w27XFtgmzqU7")
 folklore <- get_playlist_audio_features("","4YaaPhq4wawrxM0IqlCXc6")
@@ -48,16 +42,11 @@ albums <- bind_rows(evermore %>%
                     taylorswift %>% 
                       mutate(category="taylorswift"))
 
- 
-```
-
-```{r}
 everlore <- bind_rows(evermore %>% 
                       mutate(category="evermore"),
                     folklore %>% 
                       mutate(category="folklore"))
-```
-```{r}
+
 albums.means <- 
   albums %>%
   group_by(playlist_name) %>%
@@ -73,17 +62,33 @@ albums.means <-
     sd_acousticness = sd(acousticness),
     sd_liveness = sd(liveness))
 
-view(albums.means)
 ```
+
+### The 180 degree turn of Taylor Swift
+
+My corpus will be about the change that Taylor Swift has been through stylisticly throughout her recent albums.
+
+In july 2020 she suddenly released her eight record, called 'folklore', which was a 180 degree turn from the (pop) sound she used to make. With the record she went back to her country roots and critics called it her best work yet. I was not the biggest Swift fan before this record dropped, but folklore changed the game for me. Every single song on the record is so beautifully written and it became my most listened to album of 2020. Taylor herself was also inspired by this sudden change in her style, and just 5 months later she released folklore's 'sister record' called 'evermore' in december. Where she used to have a big roll-out for a new record and where there would be a couple of years between them to build up hype, these two records were announced the day before they were released. Both folklore and evermore are now considered her two best records she ever made, and I can't stop myself from listening to them over and over again. 
+
+Because these two records were such a big change in style for Taylor, I think it would be really interesting to compare them to her earlier work and see if the songs are actually as different as I believe them to be. Or maybe this sound was always hidden away in her bubblegum pop records of the past and it just never showed? Besides comparing folklore and evermore to her earlier records such as '1989', 'lover' and 'red', I think it would also be interesting to compare folklore and evermore with eachother. Because they are in fact "sister albums", how much are they alike? 
+
+### Comparing every single record she released since the start of her career
+
 ```{r}
 albums.sp.energy <- albums.means %>%
   ggplot(aes(mean_energy,mean_danceability ,color = playlist_name))  + geom_point() + expand_limits(x=c(0.35,0.75), y=c(0.5,0.675)) + theme(legend.position="none") + labs(y= "Danceability", x = " Energy")
 
 albums.sp.energy + geom_text_repel(aes(color=playlist_name, label=playlist_name))
+
+ggplotly(albums.sp.energy)
 ```
+
+***
+The first thing I wanted to do, was just compare every record she released and just observer where differences lie. 
 
 Here I let R calculate the respective means of the albums, and in the scatter plot above you see the mean energy and mean danceability. Immediately you see folklore and evermore in their own corner, with especially 1989 (her most succesful record chart-wise) in the complete opposite. 
 
+### Acousticness comparison
 ```{r}
 albums.means %>%
 ggplot(aes(x=playlist_name, y=mean_acousticness, fill=playlist_name)) +
@@ -94,7 +99,14 @@ ggplot(aes(x=playlist_name, y=mean_acousticness, fill=playlist_name)) +
 
 ```
 
-And as you can see in the bar graph above, evermore and folklore also score really high in acousticness compared to the other records. I think this is a good starting point for further comparisons. 
+***
+And as you can see in this bar graph , evermore and folklore also score really high in acousticness compared to the other records. I think this is a good starting point for further comparisons. 
+
+
+
+
+
+
 
 
 

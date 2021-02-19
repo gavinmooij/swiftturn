@@ -51,16 +51,9 @@ albums.means <-
   albums %>%
   group_by(playlist_name) %>%
   summarise(
-    mean_speechiness = mean(speechiness),
-    mean_valence = mean(valence),
     mean_danceability = mean(danceability),
     mean_acousticness = mean(acousticness),
-    mean_liveness = mean(liveness),
-    mean_tempo = mean(tempo),
-    mean_energy = mean(energy),
-    sd_speechiness = sd(speechiness),
-    sd_acousticness = sd(acousticness),
-    sd_liveness = sd(liveness))
+    mean_energy = mean(energy))
 
 ```
 
@@ -76,31 +69,33 @@ Because these two records were such a big change in style for Taylor, I think it
 
 ```{r}
 albums.sp.energy <- albums.means %>%
-  ggplot(aes(mean_energy,mean_danceability ,color = playlist_name))  + geom_point() + expand_limits(x=c(0.35,0.75), y=c(0.5,0.675)) + theme(legend.position="none") + labs(y= "Danceability", x = " Energy")
+  ggplot(aes(mean_energy,mean_danceability ,color = playlist_name, size=mean_acousticness))  + geom_point() + expand_limits(x=c(0.35,0.75), y=c(0.5,0.675))  + labs(y= "Danceability", x = " Energy",size='Acousticness')  + guides (color=FALSE)
 
-albums.sp.energy + geom_text_repel(aes(color=playlist_name, label=playlist_name))
+albums.sp.energy + geom_text_repel(aes(color=playlist_name,label=playlist_name,size=0.4,hjust=0.4,vjust=0.5))
 
-ggplotly(albums.sp.energy)
 ```
 
 ***
 The first thing I wanted to do, was just compare every record she released and just observer where differences lie. 
 
-Here I let R calculate the respective means of the albums, and in the scatter plot above you see the mean energy and mean danceability. Immediately you see folklore and evermore in their own corner, with especially 1989 (her most succesful record chart-wise) in the complete opposite. 
+Here I let R calculate the respective means of the albums, and in the scatter plot above you see the mean energy, mean danceability and mean acousticness. Immediately you see folklore and evermore in their own corner, with especially 1989 (her most succesful record chart-wise) in the complete opposite. Her two latest albums also show a difference in acousticness as they are the biggest dots in the graphs. I think this is a good starting point for further comparisons. 
 
-### Acousticness comparison
 ```{r}
-albums.means %>%
-ggplot(aes(x=playlist_name, y=mean_acousticness, fill=playlist_name)) +
-  geom_bar(stat="identity")+
-  geom_text(aes(label=playlist_name), vjust=1.6, color="white", size=2.5)+
-  theme(legend.position="none",axis.text.x  = element_blank()) + labs(y= "Acousticness", x = "")
-
+albums.sd <- 
+  albums %>%
+  group_by(playlist_name) %>%
+  summarise(
+    sd_danceability = sd(danceability),
+    sd_acousticness = sd(acousticness),
+    sd_energy = sd(energy)
+  )
 
 ```
 
-***
-And as you can see in this bar graph , evermore and folklore also score really high in acousticness compared to the other records. I think this is a good starting point for further comparisons. 
+
+
+
+
 
 
 

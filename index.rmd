@@ -12,14 +12,15 @@ library(ggrepel)
 library(compmus)
 library(flexdashboard)
 library(plotly)
+library(DT)
 
 evermore <- get_playlist_audio_features("","4YtuQ3FLB2w27XFtgmzqU7")
 folklore <- get_playlist_audio_features("","4YaaPhq4wawrxM0IqlCXc6")
 lover <- get_playlist_audio_features("","1RnBW0qK769pfSuB1Euv4j")
 reputation <- get_playlist_audio_features("","7rNUhp9UhkfIs8uHzfSpcS")
 nine <- get_playlist_audio_features("","6dRkBAsWQaeYFPS0CVR0FU")
-red <- get_playlist_audio_features("","4u9YPeH7Nsk6VMNrwIRW79")
 speaknow <- get_playlist_audio_features("","3nb8QcF2HRyvC2ncLjXwwW")
+red <- get_playlist_audio_features("","4u9YPeH7Nsk6VMNrwIRW79")
 fearless <- get_playlist_audio_features("","5uhG5PWE7CzuSI2eeyOwS3")
 taylorswift <- get_playlist_audio_features("","6ojsDGC1I1WWnt4LyzqRnu")
 
@@ -55,6 +56,8 @@ albums.means <-
     mean_acousticness = mean(acousticness),
     mean_energy = mean(energy))
 
+view(albums)
+
 ```
 
 ### The 180 degree turn of Taylor Swift
@@ -80,6 +83,8 @@ The first thing I wanted to do, was just compare every record she released and j
 
 Here I let R calculate the respective means of the albums, and in the scatter plot above you see the mean energy, mean danceability and mean acousticness. Immediately you see folklore and evermore in their own corner, with especially 1989 (her most succesful record chart-wise) in the complete opposite. Her two latest albums also show a difference in acousticness as they are the biggest dots in the graphs. I think this is a good starting point for further comparisons. 
 
+The respective standard deviations of the means : 
+
 ```{r}
 albums.sd <- 
   albums %>%
@@ -87,19 +92,154 @@ albums.sd <-
   summarise(
     sd_danceability = sd(danceability),
     sd_acousticness = sd(acousticness),
-    sd_energy = sd(energy)
-  )
+    sd_energy = sd(energy))
+
+library(knitr)
+kable(albums.sd, caption = "The respective standard deviations of the means :", col.names = c('Album', 'Danceability', 'Acousticness', 'Energy'),digits = 2,"simple")
 
 ```
 
 
+### Determining outliers in the two sister albums versus 1989
 
+```{r}
+ef1989 <-
+  evermore %>%
+  mutate(category = "evermore") %>%
+  bind_rows(folklore %>% mutate(category = "folklore")) %>%
+  bind_rows(nine %>% mutate(category = "1998")) %>%
+  mutate(
+    category = fct_relevel(category, "evermore", "folklore", "1998")
+  )
+outliers <-
+  ef1989 %>%
+  ggplot(                          # Set up the plot.
+    aes(
+      x = valence,
+      y = energy,
+      colour = acousticness,
+      size = track.popularity,
+      label = track.name          # Labels will be interactively visible.
+    )
+  ) +
+  geom_point() +                   # Scatter plot.
+  geom_rug(size = 0.1) +           # Add 'fringes' to show data distribution.
+  facet_wrap(~category) +           # Separate charts per country.
+  scale_x_continuous(              # Fine-tune the x axis.
+    limits = c(0,1, 1),
+    breaks = c(0, 0.50, 1),        # Use grid-lines for quadrants only.
+    minor_breaks = NULL            # Remove 'minor' grid-lines.
+  ) +
+  scale_y_continuous(              # Fine-tune the y axis in the same way.
+    limits = c(0.3, 0.85),
+    breaks = c(0, 0.50, 1),
+    minor_breaks = NULL
+  ) +
+  scale_colour_viridis_c(          # Use the cividis palette
+    option = "E",                  # Qualitative set.
+    alpha = 0.8,                   # Include some transparency
+    guide = "none"
+  ) +
+  scale_size_continuous(           # Fine-tune the sizes of each point.
+    guide = "none"                 # Remove the legend for size.
+  ) +
+  theme_light() +                  # Use a simpler theme.
+  labs(                            # Make the titles nice.
+    x = "Valence",
+    y = "Energy"
+  )
+ggplotly(outliers)
 
+```
 
+***
+I decided to continue this journey of comparison with her two most recent records 'evermore' and 'folklore', and the record that stood the farthest from the two in the graph you saw in the last tab; '1989'. For the record, '1989' is also one of Taylor Swifts most succesful albums to date, so I thought it would be interesting to compare the three. 
 
+In these graphs, size is determined by the popularity of the track and color is determined by acousticness. The more yellow the dot, the more acoustic the track. 
 
+### Chromagram
+```{r}
+wood <-
+  get_tidy_audio_analysis("6IQILcYkN2S2eSu5IHoPEH") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
 
+wood %>%
+  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
+  compmus_gather_chroma() %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = pitch_class,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  theme_minimal() +
+  scale_fill_viridis_c()
+```
+***
+The magical chromagram!!
 
+### Self similarity matrix
+```{r}
+bzt <-
+  get_tidy_audio_analysis("5DiDE0bSiuX3J2hSyXTXRT") %>% # Change URI.
+  compmus_align(bars, segments) %>%                     # Change `bars`
+  select(bars) %>%                                      #   in all three
+  unnest(bars) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+bzt %>%
+  compmus_self_similarity(timbre, "manhattan") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
+```
+
+***
+A self similarity matrix woohoo 
+
+### Amber
+```{r}
+amberalora <- get_playlist_audio_features("","6EvTdMuzSdgR71QWgPEiZO")
+amberalora.plot <- amberalora %>%
+  ggplot(aes(energy,valence, color=track.name, size = danceability)) + geom_point()
+
+amberalora.plot + geom_text_repel(aes(color=track.name,label=track.name,size=0.6,hjust=0.4,vjust=0.5))  + guides (color=FALSE)
+amberalora.plot
+
+amberalora
+```
+***
+Ambers dingetje
 
 
 

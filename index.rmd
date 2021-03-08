@@ -13,6 +13,9 @@ library(compmus)
 library(flexdashboard)
 library(plotly)
 library(DT)
+library(grid)
+library(gridExtra)
+library(png)
 
 evermore <- get_playlist_audio_features("","4YtuQ3FLB2w27XFtgmzqU7")
 folklore <- get_playlist_audio_features("","4YaaPhq4wawrxM0IqlCXc6")
@@ -56,36 +59,6 @@ albums.means <-
     mean_acousticness = mean(acousticness),
     mean_energy = mean(energy))
 
-view(albums)
-
-```
-
-### The 180 degree turn of Taylor Swift
-
-My corpus will be about the change that Taylor Swift has been through stylisticly throughout her recent albums.
-
-In july 2020 she suddenly released her eight record, called 'folklore', which was a 180 degree turn from the (pop) sound she used to make. With the record she went back to her country roots and critics called it her best work yet. I was not the biggest Swift fan before this record dropped, but folklore changed the game for me. Every single song on the record is so beautifully written and it became my most listened to album of 2020. Taylor herself was also inspired by this sudden change in her style, and just 5 months later she released folklore's 'sister record' called 'evermore' in december. Where she used to have a big roll-out for a new record and where there would be a couple of years between them to build up hype, these two records were announced the day before they were released. Both folklore and evermore are now considered her two best records she ever made, and I can't stop myself from listening to them over and over again. 
-
-Because these two records were such a big change in style for Taylor, I think it would be really interesting to compare them to her earlier work and see if the songs are actually as different as I believe them to be. Or maybe this sound was always hidden away in her bubblegum pop records of the past and it just never showed? Besides comparing folklore and evermore to her earlier records such as '1989', 'lover' and 'red', I think it would also be interesting to compare folklore and evermore with eachother. Because they are in fact "sister albums", how much are they alike? 
-
-### Comparing every single record she released since the start of her career
-
-```{r}
-albums.sp.energy <- albums.means %>%
-  ggplot(aes(mean_energy,mean_danceability ,color = playlist_name, size=mean_acousticness))  + geom_point() + expand_limits(x=c(0.35,0.75), y=c(0.5,0.675))  + labs(y= "Danceability", x = " Energy",size='Acousticness')  + guides (color=FALSE)
-
-albums.sp.energy + geom_text_repel(aes(color=playlist_name,label=playlist_name,size=0.4,hjust=0.4,vjust=0.5))
-
-```
-
-***
-The first thing I wanted to do, was just compare every record she released and just observer where differences lie. 
-
-Here I let R calculate the respective means of the albums, and in the scatter plot above you see the mean energy, mean danceability and mean acousticness. Immediately you see folklore and evermore in their own corner, with especially 1989 (her most succesful record chart-wise) in the complete opposite. Her two latest albums also show a difference in acousticness as they are the biggest dots in the graphs. I think this is a good starting point for further comparisons. 
-
-The respective standard deviations of the means : 
-
-```{r}
 albums.sd <- 
   albums %>%
   group_by(playlist_name) %>%
@@ -94,22 +67,63 @@ albums.sd <-
     sd_acousticness = sd(acousticness),
     sd_energy = sd(energy))
 
-library(knitr)
-kable(albums.sd, caption = "The respective standard deviations of the means :", col.names = c('Album', 'Danceability', 'Acousticness', 'Energy'),digits = 2,"simple")
+albums.sd.means <- merge(albums.sd,albums.means,by="playlist_name")
+albums.sd.means2 <- if(is.numeric(albums.sd.means)) round(albums.sd.means,digits = 2)
 
 ```
 
+### **Introduction page**, get to know my corpus!
+**The 180 degree turn of Taylor Swift**
 
-### Determining outliers in the two sister albums versus 1989
+*My corpus will be about the change that Taylor Swift has been through stylisticly throughout her recent albums.*
+
+In july 2020 she suddenly released her eight record, called **'folklore'**, which was a 180 degree turn from the (pop) sound she used to make. With the record she went back to her country roots and critics called it her best work yet. I was not the biggest Swift fan before this record dropped, but folklore changed the game for me. Every single song on the record is so beautifully written and it became my most listened to album of 2020. Taylor herself was also inspired by this sudden change in her style, and just 5 months later she released folklore's 'sister record' called **'evermore'** in december. Where she used to have a big roll-out for a new record and where there would be a couple of years between them to build up hype, these two records were announced the day before they were released. Both folklore and evermore are now considered her two best records she ever made, and I can't stop myself from listening to them over and over again. 
+
+![The album cover of reputation 2017](foto's/reputation.png) ![The album cover of folklore (2020)](foto's/folklore.png) 
+
+Because these two records were such a big change in style for Taylor, I think it would be really interesting to compare them to her earlier work and see if the songs are actually as different as I believe them to be. Or maybe this sound was always hidden away in her bubblegum pop records of the past and it just never showed? Besides comparing folklore and evermore to her earlier records such as **'1989'**, 'lover' and **'red'**, I think it would also be interesting to compare folklore and evermore with eachother. Because they are in fact "sister albums", how much are they alike? 
+
+### Comparing **every single record** she released since the start of her career. Which ones are more **danceable**? And which ones are more **acoustic**?
+
+```{r}
+albums.sp.energy <- albums.sd.means %>%
+  ggplot(aes(mean_energy,mean_danceability,
+             color = as.numeric(as.character(mean_acousticness)),
+             size = sd_danceability + sd_energy + sd_acousticness,
+             text = paste0(
+               "Album : ",playlist_name,
+               "<br>Energy : ",round(mean_energy,digits=2),
+               "<br>Danceability : ",round(mean_danceability,digits=2),
+               "<br>Acousticness : ",round(mean_acousticness,digits=2),
+               "<br>SD Energy : ",round(sd_energy,digits=2),
+               "<br>SD Danceability : ",round(sd_danceability,digits=2),
+               "<br>SD Acousticness : ",round(sd_acousticness,digits=2)
+             )))  + geom_point() + expand_limits(x=c(0.35,0.75), y=c(0.5,0.675))  + labs(y= "Danceability", x = " Energy",color="Acousticness",size="SD Danceability",alpha = "SD Energy") 
+
+
+
+ggplotly(albums.sp.energy,tooltip = "text") 
+```
+
+***
+**The first thing** I wanted to do, was just compare every album she released and observe where differences lie, so I'm not biased by knowing that her two most recent albums are in fact very different from the other ones that she has put out so far. 
+
+When hovering over the dots in the graph, you can see the respective names of the albums together with how the album scores on three categories; danceability, energy and acousticness. **Immediately** you see folklore and evermore in their own corner, with especially 1989 (her most successful album chart-wise) in the complete opposite. Her two latest albums also show a difference in acousticness as they are a lighter blue than the other ones. I think this is a good starting point for further comparisons. 
+
+And if you were wondering: **"What about the size of the dots?!"** Well, this is actually calculated by how diverse the album is. I added up the standard deviations of the variables used in this plot. The bigger that number is, the bigger the dot. The tracks on 'evermore', for example, are all pretty similar. Whereas the tracks on "Lover" differ the most. 
+
+### Diving into her **5 most recent albums** to find out where this **sudden change in style** happened. 
 
 ```{r}
 ef1989 <-
   evermore %>%
   mutate(category = "evermore") %>%
   bind_rows(folklore %>% mutate(category = "folklore")) %>%
-  bind_rows(nine %>% mutate(category = "1998")) %>%
+  bind_rows(reputation %>% mutate(category = "reputation")) %>%
+  bind_rows(lover %>% mutate(category = "lover")) %>%
+  bind_rows(nine %>% mutate(category = "1989")) %>%
   mutate(
-    category = fct_relevel(category, "evermore", "folklore", "1998")
+    category = fct_relevel(category, "1989", "reputation", "lover","folklore","evermore")
   )
 outliers <-
   ef1989 %>%
@@ -118,20 +132,19 @@ outliers <-
       x = valence,
       y = energy,
       colour = acousticness,
-      size = track.popularity,
+      size = danceability,
       label = track.name          # Labels will be interactively visible.
     )
   ) +
   geom_point() +                   # Scatter plot.
-  geom_rug(size = 0.1) +           # Add 'fringes' to show data distribution.
-  facet_wrap(~category) +           # Separate charts per country.
+  facet_wrap(~category,nrow=1) +           # Separate charts per country.
   scale_x_continuous(              # Fine-tune the x axis.
     limits = c(0,1, 1),
     breaks = c(0, 0.50, 1),        # Use grid-lines for quadrants only.
     minor_breaks = NULL            # Remove 'minor' grid-lines.
   ) +
   scale_y_continuous(              # Fine-tune the y axis in the same way.
-    limits = c(0.3, 0.85),
+    limits = c(0, 1),
     breaks = c(0, 0.50, 1),
     minor_breaks = NULL
   ) +
@@ -153,41 +166,51 @@ ggplotly(outliers)
 ```
 
 ***
-I decided to continue this journey of comparison with her two most recent records 'evermore' and 'folklore', and the record that stood the farthest from the two in the graph you saw in the last tab; '1989'. For the record, '1989' is also one of Taylor Swifts most succesful albums to date, so I thought it would be interesting to compare the three. 
+I decided to **continue this journey of comparison** with her five most recent albums. The graphs are ordered from oldest to newest starting with '1989' (released in 2014) and ending with 'evermore' (released in 2020). In these graphs, **size is determined by the danceability** of the track and color is determined by acousticness. **The more yellow the dot, the more acoustic the track.** 
 
-In these graphs, size is determined by the popularity of the track and color is determined by acousticness. The more yellow the dot, the more acoustic the track. 
+Looking at these graphs side to side, the fact that 'evermore' and 'foklore' are called **"sister-albums"** becomes even more clear. There is also a clear **downward trend** when it comes to energy from '1989' to 'folklore'. But **the most sudden changes** seperating the two sister-albums from their predecessors are found in acousticness and danceability. On average, the dots of 'folklore' and 'evermore' are smaller and more yellow. 
 
-### Chromagram
+Comparing the means side-to-side makes this even more clear. There has been a big change of style in Swifts work going from 'Lover' to 'evermore'.
 ```{r}
-wood <-
-  get_tidy_audio_analysis("6IQILcYkN2S2eSu5IHoPEH") %>%
-  select(segments) %>%
-  unnest(segments) %>%
-  select(start, duration, pitches)
+albums.means2 <-
+  ef1989 %>%
+  group_by(playlist_name) %>%
+  summarise(
+    mean_acousticness = mean(acousticness),
+    mean_energy = mean(energy),
+    mean_danceability = mean(danceability)) %>%
+  arrange(mean_acousticness)
 
-wood %>%
-  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
-  compmus_gather_chroma() %>% 
-  ggplot(
-    aes(
-      x = start + duration / 2,
-      width = duration,
-      y = pitch_class,
-      fill = value
-    )
-  ) +
-  geom_tile() +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  theme_minimal() +
-  scale_fill_viridis_c()
+library(knitr)
+kable(albums.means2, col.names = c('Album', 'Acoustic', 'Energy','Dance'),digits=2)
 ```
-***
-The magical chromagram!!
 
-### Self similarity matrix
+**In the next few pages**, I am going to compare two tracks using so-called "track level features". This basically means zooming in on the tracks and searching for **differences concerning the structure,key and timbre**. I decided to use one track from '1989' and one from 'evermore' because they are the most different and the furthest apart in terms of the years they were released. **The tracks I chose** are "Blank Space" for '1989' and "Ivy" for 'evermore' because they lie near the mean of both albums, and are therefore good representatives. 
+
+### Is there a difference concercing the **timbre** of the tracks? A closer look using the **Spotify Timbre Coefficients**.  
 ```{r}
-bzt <-
-  get_tidy_audio_analysis("5DiDE0bSiuX3J2hSyXTXRT") %>% # Change URI.
+evermore <-
+  get_playlist_audio_features(
+    "",
+    "4YtuQ3FLB2w27XFtgmzqU7"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+ninetie <-
+  get_playlist_audio_features(
+    "",
+    "6dRkBAsWQaeYFPS0CVR0FU"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+jazz <-
+  evermore %>%
+  mutate(album = "evermore") %>%
+  bind_rows(ninetie %>% mutate(album = "1989"))
+
+
+blank.cep <-
+  get_tidy_audio_analysis("2ls70nUDfjzm1lSRDuKxmw") %>% # Change URI.
   compmus_align(bars, segments) %>%                     # Change `bars`
   select(bars) %>%                                      #   in all three
   unnest(bars) %>%                                      #   of these lines.
@@ -206,8 +229,188 @@ bzt <-
       )
   )
 
-bzt %>%
-  compmus_self_similarity(timbre, "manhattan") %>% 
+ivy.cep <-
+  get_tidy_audio_analysis("43Ykum9T72UOPhBN31grpN") %>% # Change URI.
+  compmus_align(bars, segments) %>%                     # Change `bars`
+  select(bars) %>%                                      #   in all three
+  unnest(bars) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+plot1 <- blank.cep %>%
+  compmus_gather_timbre() %>%
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = basis,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude",title = "Blank Space") +
+  scale_fill_viridis_c(guide="none") +                              
+  theme_classic()
+
+plot2 <- ivy.cep %>%
+  compmus_gather_timbre() %>%
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = basis,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude",title = "Ivy") +
+  scale_fill_viridis_c(guide = "none") +                              
+  theme_classic()
+
+plot3 <- jazz %>%
+  mutate(
+    timbre =
+      map(
+        segments,
+        compmus_summarise,
+        timbre,
+        method = "mean"
+      )
+  ) %>%
+  select(album, timbre) %>%
+  compmus_gather_timbre() %>%
+  ggplot(aes(x = basis, y = value, color = album)) +
+geom_point()+
+  scale_fill_viridis_d(guide="none") +
+  labs(x = "Spotify Timbre Coefficients", y = "",color="") + theme(legend.position = "top")
+
+grid.arrange(arrangeGrob(plot1,plot2),plot3,nrow=1,ncol=2)
+```
+
+***
+
+In these graphs, I tried to find a **difference in timbre** between the two albums '1989' and 'evermore'. On the left, you can see a so-called **"Cepstogram"** of the two representative tracks. It looks a bit vague, but the only thing that is important is that it shows **changes in the song concercing timbre.** The different coefficients (c01-c12) all stand for different levels of timbre. Although the exact definitions are not well-defined; c01 is known to be 'loudness', c02 stands for the low frequencies, c03 represents the mid range and c04 stands for 'noise'. The other levels are not that clear and also less and less visible. 
+
+Looking at these tracks, **Blank Space** stays much more in the low frequencies, while **Ivy** tends to explore other levels of timbre. This distinction on c02 level is even more visible when looking at the two albums overall. In the graph on the right, I summarized the Timbre Coefficients of every track and the mean of every track per coefficient is shown in the graph. 
+
+### How consistent are **Blank Space** and **Ivy** when it comes to the use of different **pitch classes**?
+```{r}
+blank <-
+  get_tidy_audio_analysis("2ls70nUDfjzm1lSRDuKxmw") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
+
+ivy <-
+  get_tidy_audio_analysis("43Ykum9T72UOPhBN31grpN") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
+
+
+
+
+plot1 <- blank %>%
+  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
+  compmus_gather_chroma() %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = pitch_class,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, title = "Blank Space", fill = "Magnitude") +
+  theme_minimal() +
+  scale_fill_viridis_c()
+
+plot2 <- ivy %>%
+  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
+  compmus_gather_chroma() %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = pitch_class,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, title = "Ivy", fill = "Magnitude") +
+  theme_minimal() +
+  scale_fill_viridis_c(guide = "none")
+
+
+
+grid.arrange(plot1,plot2
+             )
+```
+
+***
+
+The magical chromagram!! (I'm still not sure how to explain what we're seeing here) What I do see is that in **Blank Space**, there seems to be a clear chorus at the places with an "M" visible at the F and G pitch class.. While in **Ivy** it's a lot more consistent on the D, with lots of other pitch classes being played alongside. 
+
+### Taking a closer look at the overall **structure of the tracks**. Did Swift start writing songs outside of the **pop-formula**?
+```{r}
+blank_self <-
+  get_tidy_audio_analysis("2ls70nUDfjzm1lSRDuKxmw") %>% # Change URI.
+  compmus_align(sections, segments) %>%                     # Change `bars`
+  select(sections) %>%                                      #   in all three
+  unnest(sections) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+
+
+ivy_self <-
+  get_tidy_audio_analysis("43Ykum9T72UOPhBN31grpN") %>% # Change URI.
+  compmus_align(sections, segments) %>%                     # Change `bars`
+  select(sections) %>%                                      #   in all three
+  unnest(sections) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+
+plot1 <- blank_self %>%
+  compmus_self_similarity(timbre, "cosine") %>% 
   ggplot(
     aes(
       x = xstart + xduration / 2,
@@ -221,27 +424,199 @@ bzt %>%
   coord_fixed() +
   scale_fill_viridis_c(guide = "none") +
   theme_classic() +
-  labs(x = "", y = "")
+  labs(x = "", y = "",
+      title = "Blank Space")
+
+plot2 <- ivy_self %>%
+  compmus_self_similarity(timbre, "cosine") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "",
+      title = "Ivy")
+
+
+
+grid.arrange(plot1,plot2
+             , ncol = 2, #Row 2, 2 Plots
+             nrow = 1)
+
 ```
 
 ***
-A self similarity matrix woohoo 
 
-### Amber
+As you can see, I made a **self-similarity matrix** based on timbre. Which, for those of you who are not familiar with these kinds of graphs, is just a way to see the over-all structure of the song. And with structure i mean the positions of chorus, verse and maybe a bridge or different change in the song itself. 
+
+In Blank Space you see Swift holding on to the **'pop-structure'** which simply means intro-verse-chorus-verse-chorus-bridge-chorus-end. But with Ivy it is clearly visible that the structure of the song is very different from the one seen in Blank Space. The structure is more experimental / alternative, with some kind of chorus visible (obviously) but it is not as clear in Blank Space. 
+
+What I understood of this matrix, **is the busier the graph: the more diverse the song.**
+
+
+### Trying to find differences when looking at **key changes** using the "Keygram". 
+
 ```{r}
-amberalora <- get_playlist_audio_features("","6EvTdMuzSdgR71QWgPEiZO")
-amberalora.plot <- amberalora %>%
-  ggplot(aes(energy,valence, color=track.name, size = danceability)) + geom_point()
+circshift <- function(v, n) {
+  if (n == 0) v else c(tail(v, n), head(v, -n))
+}
 
-amberalora.plot + geom_text_repel(aes(color=track.name,label=track.name,size=0.6,hjust=0.4,vjust=0.5))  + guides (color=FALSE)
-amberalora.plot
+#      C     C#    D     Eb    E     F     F#    G     Ab    A     Bb    B
+major_chord <-
+  c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    0,    0)
+minor_chord <-
+  c(   1,    0,    0,    1,    0,    0,    0,    1,    0,    0,    0,    0)
+seventh_chord <-
+  c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    1,    0)
 
-amberalora
+major_key <-
+  c(6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88)
+minor_key <-
+  c(6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17)
+
+chord_templates <-
+  tribble(
+    ~name, ~template,
+    "Gb:7", circshift(seventh_chord, 6),
+    "Gb:maj", circshift(major_chord, 6),
+    "Bb:min", circshift(minor_chord, 10),
+    "Db:maj", circshift(major_chord, 1),
+    "F:min", circshift(minor_chord, 5),
+    "Ab:7", circshift(seventh_chord, 8),
+    "Ab:maj", circshift(major_chord, 8),
+    "C:min", circshift(minor_chord, 0),
+    "Eb:7", circshift(seventh_chord, 3),
+    "Eb:maj", circshift(major_chord, 3),
+    "G:min", circshift(minor_chord, 7),
+    "Bb:7", circshift(seventh_chord, 10),
+    "Bb:maj", circshift(major_chord, 10),
+    "D:min", circshift(minor_chord, 2),
+    "F:7", circshift(seventh_chord, 5),
+    "F:maj", circshift(major_chord, 5),
+    "A:min", circshift(minor_chord, 9),
+    "C:7", circshift(seventh_chord, 0),
+    "C:maj", circshift(major_chord, 0),
+    "E:min", circshift(minor_chord, 4),
+    "G:7", circshift(seventh_chord, 7),
+    "G:maj", circshift(major_chord, 7),
+    "B:min", circshift(minor_chord, 11),
+    "D:7", circshift(seventh_chord, 2),
+    "D:maj", circshift(major_chord, 2),
+    "F#:min", circshift(minor_chord, 6),
+    "A:7", circshift(seventh_chord, 9),
+    "A:maj", circshift(major_chord, 9),
+    "C#:min", circshift(minor_chord, 1),
+    "E:7", circshift(seventh_chord, 4),
+    "E:maj", circshift(major_chord, 4),
+    "G#:min", circshift(minor_chord, 8),
+    "B:7", circshift(seventh_chord, 11),
+    "B:maj", circshift(major_chord, 11),
+    "D#:min", circshift(minor_chord, 3)
+  )
+
+key_templates <-
+  tribble(
+    ~name, ~template,
+    "Gb:maj", circshift(major_key, 6),
+    "Bb:min", circshift(minor_key, 10),
+    "Db:maj", circshift(major_key, 1),
+    "F:min", circshift(minor_key, 5),
+    "Ab:maj", circshift(major_key, 8),
+    "C:min", circshift(minor_key, 0),
+    "Eb:maj", circshift(major_key, 3),
+    "G:min", circshift(minor_key, 7),
+    "Bb:maj", circshift(major_key, 10),
+    "D:min", circshift(minor_key, 2),
+    "F:maj", circshift(major_key, 5),
+    "A:min", circshift(minor_key, 9),
+    "C:maj", circshift(major_key, 0),
+    "E:min", circshift(minor_key, 4),
+    "G:maj", circshift(major_key, 7),
+    "B:min", circshift(minor_key, 11),
+    "D:maj", circshift(major_key, 2),
+    "F#:min", circshift(minor_key, 6),
+    "A:maj", circshift(major_key, 9),
+    "C#:min", circshift(minor_key, 1),
+    "E:maj", circshift(major_key, 4),
+    "G#:min", circshift(minor_key, 8),
+    "B:maj", circshift(major_key, 11),
+    "D#:min", circshift(minor_key, 3)
+  )
+
+blank_chord <-
+  get_tidy_audio_analysis("2ls70nUDfjzm1lSRDuKxmw") %>%
+  compmus_align(sections, segments) %>%
+  select(sections) %>%
+  unnest(sections) %>%
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      )
+  )
+
+
+
+ivy_chord <-
+  get_tidy_audio_analysis("43Ykum9T72UOPhBN31grpN") %>%
+  compmus_align(sections, segments) %>%
+  select(sections) %>%
+  unnest(sections) %>%
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      )
+  )
+
+
+
+plot1 <- blank_chord %>% 
+  compmus_match_pitch_template(
+    chord_templates,         # Change to chord_templates if descired
+    method = "manhattan",  # Try different distance metrics
+    norm = "euclidean"     # Try different norms
+  ) %>%
+  ggplot(
+    aes(x = start + duration / 2, width = duration, y = name, fill = d)
+  ) +
+  geom_tile()  + 
+  scale_fill_viridis_c(guide = "none") +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "", title="Blank Space")
+
+plot2 <- ivy_chord %>% 
+  compmus_match_pitch_template(
+    chord_templates,         # Change to chord_templates if descired
+    method = "manhattan",  # Try different distance metrics
+    norm = "euclidean"     # Try different norms
+  ) %>%
+  ggplot(
+    aes(x = start + duration / 2, width = duration, y = name, fill = d)
+  ) +
+  geom_tile()  + 
+  scale_fill_viridis_c(guide = "none") +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "", title = "Ivy")
+
+
+grid.arrange(plot1, plot2, ncol = 2, #Row 2, 2 Plots
+             nrow = 1)
 ```
+
 ***
-Ambers dingetje
 
-
+**The bluer, the more it's played.** So it looks like the chord structure in Ivy is much more consistent. 
 
 
 

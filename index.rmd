@@ -1,8 +1,9 @@
 ---
-title: "swiftturn by Gavin Mooij"
+title: "'The 180 degree turn of Taylor Swift' by Gavin Mooij (12769289), March 2021"
 output: 
   flexdashboard::flex_dashboard:
     storyboard: true
+
 ---
 ```{r setup, include=FALSE}
 
@@ -72,6 +73,32 @@ albums.sd.means2 <- if(is.numeric(albums.sd.means)) round(albums.sd.means,digits
 
 ```
 
+### NEW Just like with structure, Taylor also started experimenting with **tempo**. A tempogram of the **title-track of 'evermore'**.
+```{r, cashe = TRUE}
+evermore <- get_tidy_audio_analysis("6Wlq9rqkxrqj5Kls4Kw14H")
+
+
+evermore %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic() + xlim(0,290) + 
+  geom_vline(xintercept=158, color = "white")+ 
+  geom_vline(xintercept=222, color = "white")+
+  geom_text(x=190, y=140, label="Bon Iver comes in", color = "white", size=3.1)
+```
+
+***
+
+**Used track :** 
+[evermore (ft. Bon Iver)](https://open.spotify.com/track/6Wlq9rqkxrqj5Kls4Kw14H?si=YzDu5Y4PSMib2YpDaf4OCQ) , from her ninth studio album 'evermore'.
+
+On the last page there already was a clear difference in structure between Swift's newer and older albums. It looks like she abandoned the standard pop-structure and started to experiment more while writing her songs. Besides structure, she also started to experiment with tempo. Because **for the first time in her career**, she incorporated a **change in tempo** in one of her songs. I'm talking about the title track of 'evermore', of which you see a so-called tempogram in the graph on the left.
+
+This change in tempo is **clearly visible in this tempogram**. The song features Bon Iver's singer Justin Vernon, and when Taylor stops singing and Justin starts you see the tempo jumping up from 100bpm to 120bpm. This is pretty unique for Swift,  and the first time she does not hold on to tempo for the entirety of a song (which is one of the core-principles of pop music).
+
 ### **Introduction page**, get to know my corpus!
 **The 180 degree turn of Taylor Swift**
 
@@ -81,11 +108,13 @@ In july 2020 she suddenly released her eight record, called **'folklore'**, whic
 
 ![The album cover of reputation 2017](foto's/reputation.png) ![The album cover of folklore (2020)](foto's/folklore.png) 
 
+The album cover of reputation (2017) and left of that, folklore (2020). 
+
 Because these two records were such a big change in style for Taylor, I think it would be really interesting to compare them to her earlier work and see if the songs are actually as different as I believe them to be. Or maybe this sound was always hidden away in her bubblegum pop records of the past and it just never showed? Besides comparing folklore and evermore to her earlier records such as **'1989'**, 'lover' and **'red'**, I think it would also be interesting to compare folklore and evermore with eachother. Because they are in fact "sister albums", how much are they alike? 
 
 ### Comparing **every single record** she released since the start of her career. Which ones are more **danceable**? And which ones are more **acoustic**?
 
-```{r}
+```{r, cashe = TRUE}
 albums.sp.energy <- albums.sd.means %>%
   ggplot(aes(mean_energy,mean_danceability,
              color = as.numeric(as.character(mean_acousticness)),
@@ -114,7 +143,7 @@ And if you were wondering: **"What about the size of the dots?!"** Well, this is
 
 ### Diving into her **5 most recent albums** to find out where this **sudden change in style** happened. 
 
-```{r}
+```{r, cashe = TRUE}
 ef1989 <-
   evermore %>%
   mutate(category = "evermore") %>%
@@ -171,7 +200,7 @@ I decided to **continue this journey of comparison** with her five most recent a
 Looking at these graphs side to side, the fact that 'evermore' and 'foklore' are called **"sister-albums"** becomes even more clear. There is also a clear **downward trend** when it comes to energy from '1989' to 'folklore'. But **the most sudden changes** seperating the two sister-albums from their predecessors are found in acousticness and danceability. On average, the dots of 'folklore' and 'evermore' are smaller and more yellow. 
 
 Comparing the means side-to-side makes this even more clear. There has been a big change of style in Swifts work going from 'Lover' to 'evermore'.
-```{r}
+```{r, cashe = TRUE}
 albums.means2 <-
   ef1989 %>%
   group_by(playlist_name) %>%
@@ -188,7 +217,7 @@ kable(albums.means2, col.names = c('Album', 'Acoustic', 'Energy','Dance'),digits
 **In the next few pages**, I am going to compare two tracks using so-called "track level features". This basically means zooming in on the tracks and searching for **differences concerning the structure,key and timbre**. I decided to use one track from '1989' and one from 'evermore' because they are the most different and the furthest apart in terms of the years they were released. **The tracks I chose** are "Blank Space" for '1989' and "Ivy" for 'evermore' because they lie near the mean of both albums, and are therefore good representatives. 
 
 ### Is there a difference concercing the **timbre** of the tracks? A closer look using the **Spotify Timbre Coefficients**.  
-```{r}
+```{r, cashe = TRUE}
 evermore <-
   get_playlist_audio_features(
     "",
@@ -301,12 +330,16 @@ grid.arrange(arrangeGrob(plot1,plot2),plot3,nrow=1,ncol=2)
 
 ***
 
+**Used tracks :** 
+[Blank Space](https://open.spotify.com/track/1u8c2t2Cy7UBoG4ArRcF5g?si=Svk9cWhlQ-SHHQWdTas2Gw) , from her fifth studio album '1989'. 
+[Ivy](https://open.spotify.com/track/19CSr8rwW05VJL2F91KFNK?si=IGagf0C_SoaJuMJr6fiPnQ), from her ninth studio album 'evermore'.
+
 In these graphs, I tried to find a **difference in timbre** between the two albums '1989' and 'evermore'. On the left, you can see a so-called **"Cepstogram"** of the two representative tracks. It looks a bit vague, but the only thing that is important is that it shows **changes in the song concercing timbre.** The different coefficients (c01-c12) all stand for different levels of timbre. Although the exact definitions are not well-defined; c01 is known to be 'loudness', c02 stands for the low frequencies, c03 represents the mid range and c04 stands for 'noise'. The other levels are not that clear and also less and less visible. 
 
 Looking at these tracks, **Blank Space** stays much more in the low frequencies, while **Ivy** tends to explore other levels of timbre. This distinction on c02 level is even more visible when looking at the two albums overall. In the graph on the right, I summarized the Timbre Coefficients of every track and the mean of every track per coefficient is shown in the graph. 
 
 ### How consistent are **Blank Space** and **Ivy** when it comes to the use of different **pitch classes**?
-```{r}
+```{r, cashe = TRUE}
 blank <-
   get_tidy_audio_analysis("2ls70nUDfjzm1lSRDuKxmw") %>%
   select(segments) %>%
@@ -322,7 +355,7 @@ ivy <-
 
 
 
-plot1 <- blank %>%
+plot1x <- blank %>%
   mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
   compmus_gather_chroma() %>% 
   ggplot(
@@ -331,14 +364,26 @@ plot1 <- blank %>%
       width = duration,
       y = pitch_class,
       fill = value
-    )
-  ) +
+    ) 
+   ) +
   geom_tile() +
   labs(x = "Time (s)", y = NULL, title = "Blank Space", fill = "Magnitude") +
   theme_minimal() +
-  scale_fill_viridis_c()
+  scale_fill_viridis_c() + 
+  geom_vline(xintercept=48, color = "white")+
+ geom_vline(xintercept=88, color = "white")+
+geom_vline(xintercept=130, color = "white")+
+ geom_vline(xintercept=172, color = "white")+
+  geom_text(x=105, y="G", label="Chorus", color = "white")+
+  geom_text(x=189, y="G", label="Chorus", color = "white")+
+  geom_segment(x = 110, y = "G#|Ab", xend = 90, yend = "G#|Ab",
+                  arrow=arrow(length=unit(0.15,"cm")), colour="white")+
+  geom_segment(x = 194, y = "G#|Ab", xend = 174, yend = "G#|Ab",
+                  arrow=arrow(length=unit(0.15,"cm")), colour="white")
 
-plot2 <- ivy %>%
+
+
+plot2x <- ivy %>%
   mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
   compmus_gather_chroma() %>% 
   ggplot(
@@ -356,16 +401,19 @@ plot2 <- ivy %>%
 
 
 
-grid.arrange(plot1,plot2
-             )
+grid.arrange(plot1x,plot2x)
 ```
 
 ***
 
-The magical chromagram!! (I'm still not sure how to explain what we're seeing here) What I do see is that in **Blank Space**, there seems to be a clear chorus at the places with an "M" visible at the F and G pitch class.. While in **Ivy** it's a lot more consistent on the D, with lots of other pitch classes being played alongside. 
+**Used tracks :** 
+[Blank Space](https://open.spotify.com/track/1u8c2t2Cy7UBoG4ArRcF5g?si=Svk9cWhlQ-SHHQWdTas2Gw) , from her fifth studio album '1989'. 
+[Ivy](https://open.spotify.com/track/19CSr8rwW05VJL2F91KFNK?si=IGagf0C_SoaJuMJr6fiPnQ), from her ninth studio album 'evermore'.
+
+Here you see a so-called chromagram of the two songs. This tells you what pitch class is most prominent in a given time frame. As you can see, in **Blank Space**, there seems to be a clear chorus at the places with an "M" visible at the F and G pitch class. While in **Ivy**, it's a lot more consistent on the D, with lots of other pitch classes being played alongside. 
 
 ### Taking a closer look at the overall **structure of the tracks**. Did Swift start writing songs outside of the **pop-formula**?
-```{r}
+```{r, cashe = TRUE}
 blank_self <-
   get_tidy_audio_analysis("2ls70nUDfjzm1lSRDuKxmw") %>% # Change URI.
   compmus_align(sections, segments) %>%                     # Change `bars`
@@ -375,14 +423,14 @@ blank_self <-
     pitches =
       map(segments,
         compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
+        method = "mean", norm = "euclidean"              # Change summary & norm.
       )
   ) %>%
   mutate(
     timbre =
       map(segments,
         compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
+        method = "mean", norm = "euclidean"              # Change summary & norm.
       )
   )
 
@@ -390,21 +438,21 @@ blank_self <-
 
 ivy_self <-
   get_tidy_audio_analysis("43Ykum9T72UOPhBN31grpN") %>% # Change URI.
-  compmus_align(sections, segments) %>%                     # Change `bars`
-  select(sections) %>%                                      #   in all three
-  unnest(sections) %>%                                      #   of these lines.
+  compmus_align(bars, segments) %>%                     # Change `bars`
+  select(bars) %>%                                      #   in all three
+  unnest(bars) %>%                                      #   of these lines.
   mutate(
     pitches =
       map(segments,
         compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
+        method = "mean", norm = "euclidean"              # Change summary & norm.
       )
   ) %>%
   mutate(
     timbre =
       map(segments,
         compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
+        method = "mean", norm = "euclidean"              # Change summary & norm.
       )
   )
 
@@ -455,6 +503,10 @@ grid.arrange(plot1,plot2
 
 ***
 
+**Used tracks :** 
+[Blank Space](https://open.spotify.com/track/1u8c2t2Cy7UBoG4ArRcF5g?si=Svk9cWhlQ-SHHQWdTas2Gw) , from her fifth studio album '1989'. 
+[Ivy](https://open.spotify.com/track/19CSr8rwW05VJL2F91KFNK?si=IGagf0C_SoaJuMJr6fiPnQ), from her ninth studio album 'evermore'.
+
 As you can see, I made a **self-similarity matrix** based on timbre. Which, for those of you who are not familiar with these kinds of graphs, is just a way to see the over-all structure of the song. And with structure i mean the positions of chorus, verse and maybe a bridge or different change in the song itself. 
 
 In Blank Space you see Swift holding on to the **'pop-structure'** which simply means intro-verse-chorus-verse-chorus-bridge-chorus-end. But with Ivy it is clearly visible that the structure of the song is very different from the one seen in Blank Space. The structure is more experimental / alternative, with some kind of chorus visible (obviously) but it is not as clear in Blank Space. 
@@ -464,7 +516,7 @@ What I understood of this matrix, **is the busier the graph: the more diverse th
 
 ### Trying to find differences when looking at **key changes** using the "Keygram". 
 
-```{r}
+```{r, cashe = TRUE}
 circshift <- function(v, n) {
   if (n == 0) v else c(tail(v, n), head(v, -n))
 }
@@ -616,7 +668,15 @@ grid.arrange(plot1, plot2, ncol = 2, #Row 2, 2 Plots
 
 ***
 
+**Used tracks :** 
+[Blank Space](https://open.spotify.com/track/1u8c2t2Cy7UBoG4ArRcF5g?si=Svk9cWhlQ-SHHQWdTas2Gw) , from her fifth studio album '1989'. 
+[Ivy](https://open.spotify.com/track/19CSr8rwW05VJL2F91KFNK?si=IGagf0C_SoaJuMJr6fiPnQ), from her ninth studio album 'evermore'.
+
 **The bluer, the more it's played.** So it looks like the chord structure in Ivy is much more consistent. 
+
+
+
+
 
 
 

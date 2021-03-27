@@ -104,8 +104,8 @@ albums.sd.means2 <- if(is.numeric(albums.sd.means)) round(albums.sd.means,digits
 *My corpus will be about the change that Taylor Swift has been through stylisticly throughout her recent albums.*
 
 In july 2020 she suddenly released her eight record, called **'folklore'**, which was a 180 degree turn from the (pop) sound she used to make. With the record she went back to her country roots and critics called it her best work yet. I was not the biggest Swift fan before this record dropped, but folklore changed the game for me. Every single song on the record is so beautifully written and it became my most listened to album of 2020. Taylor herself was also inspired by this sudden change in her style, and just 5 months later she released folklore's 'sister record' called **'evermore'** in december. Where she used to have a big roll-out for a new record and where there would be a couple of years between them to build up hype, these two records were announced the day before they were released. Both folklore and evermore are now considered her two best records she ever made, and I can't stop myself from listening to them over and over again. 
-![Alt text](foto's/folklore.png) 
-Album cover of Folklore (2020). 
+![Alt text](foto's/collage.png) 
+Her five most recent records; 1989 (2014), reputation (2017), Lover (2019), folklore (2020), evermore (2020). 
 
 Because these two records were such a big change in style for Taylor, I think it would be really interesting to compare them to her earlier work and see if the songs are actually as different as I believe them to be. Or maybe this sound was always hidden away in her bubblegum pop records of the past and it just never showed? Besides comparing folklore and evermore to her earlier records such as **'1989'**, 'lover' and **'red'**, I think it would also be interesting to compare folklore and evermore with eachother. Because they are in fact "sister albums", how much are they alike? 
 

@@ -99,15 +99,27 @@ albums.sd.means2 <- if(is.numeric(albums.sd.means)) round(albums.sd.means,digits
 
 
 ### **Introduction page**, get to know my corpus!
+:::: {style="display: flex;"}
+
+::: {}
 **The 180 degree turn of Taylor Swift**
 
 *My corpus will be about the change that Taylor Swift has been through stylisticly throughout her recent albums.*
 
-In july 2020 she suddenly released her eight record, called **'folklore'**, which was a 180 degree turn from the (pop) sound she used to make. With the record she went back to her country roots and critics called it her best work yet. I was not the biggest Swift fan before this record dropped, but folklore changed the game for me. Every single song on the record is so beautifully written and it became my most listened to album of 2020. Taylor herself was also inspired by this sudden change in her style, and just 5 months later she released folklore's 'sister record' called **'evermore'** in december. Where she used to have a big roll-out for a new record and where there would be a couple of years between them to build up hype, these two records were announced the day before they were released. Both folklore and evermore are now considered her two best records she ever made, and I can't stop myself from listening to them over and over again. 
-![Alt text](foto's/collage.png) 
-Her five most recent records; 1989 (2014), reputation (2017), Lover (2019), folklore (2020), evermore (2020). 
+In July 2020 she suddenly released her eight record, called **'folklore'**, which was a 180 degree turn from the (pop) sound she used to make. With the record she went back to her country roots and critics called it her best work yet. I was not the biggest Swift fan before this record dropped, but folklore changed the game for me. Every single song on the record is so beautifully written and it became my most listened to album of 2020. Taylor herself was also inspired by this sudden change in her style, and just 5 months later she released folklore's 'sister record' called **'evermore'** in december. Where she used to have a big roll-out for a new record and where there would be a couple of years between them to build up hype, these two records were announced the day before they were released. Both folklore and evermore are now considered her two best records she ever made, and I can't stop myself from listening to them over and over again. 
 
-Because these two records were such a big change in style for Taylor, I think it would be really interesting to compare them to her earlier work and see if the songs are actually as different as I believe them to be. Or maybe this sound was always hidden away in her bubblegum pop records of the past and it just never showed? Besides comparing folklore and evermore to her earlier records such as **'1989'**, 'lover' and **'red'**, I think it would also be interesting to compare folklore and evermore with eachother. Because they are in fact "sister albums", how much are they alike? 
+<div>
+![Her five most recent records; 1989 (2014), reputation (2017), Lover (2019), folklore (2020), evermore (2020).](foto's/collage2.png)
+</div>
+
+**Because these two records were such a big change in style for Taylor, I think it would be really interesting to compare them to her earlier work and see if the songs are actually as different as I believe them to be. Or maybe this sound was always hidden away in her bubblegum pop records of the past and it just never showed? **
+:::
+
+::: {}
+![](foto's/taylor.png)
+:::
+
+::::
 
 ### Comparing **every single record** she released since the start of her career. Which ones are more **danceable**? And which ones are more **acoustic**?
 
@@ -139,7 +151,8 @@ When hovering over the dots in the graph, you can see the respective names of th
 
 And if you were wondering: **"What about the size of the dots?!"** Well, this is actually calculated by how diverse the album is. I added up the standard deviations of the variables used in this plot. The bigger that number is, the bigger the dot. The tracks on 'evermore', for example, are all pretty similar. Whereas the tracks on "Lover" differ the most. 
 
-### Diving into her **5 most recent albums** to find out where this **sudden change in style** happened. 
+
+### Diving into her **5 most recent albums** to find out when this **sudden change in style** happened. 
 
 ```{r, cashe = TRUE}
 ef1989 <-
@@ -330,7 +343,7 @@ grid.arrange(arrangeGrob(plot1,plot2),plot3,nrow=1,ncol=2)
 ***
 
 **Used tracks :** 
-[Blank Space](https://open.spotify.com/track/1u8c2t2Cy7UBoG4ArRcF5g?si=Svk9cWhlQ-SHHQWdTas2Gw) , from her fifth studio album '1989'. 
+[Blank Space](https://open.spotify.com/track/1u8c2t2Cy7UBoG4ArRcF5g?si=Svk9cWhlQ-SHHQWdTas2Gw) , from her fifth studio album '1989'.
 [Ivy](https://open.spotify.com/track/19CSr8rwW05VJL2F91KFNK?si=IGagf0C_SoaJuMJr6fiPnQ), from her ninth studio album 'evermore'.
 
 In these graphs, I tried to find a **difference in timbre** between the two albums '1989' and 'evermore'. On the left, you can see a so-called **"Cepstogram"** of the two representative tracks. It looks a bit vague, but the only thing that is important is that it shows **changes in the song concercing timbre.** The different coefficients (c01-c12) all stand for different levels of timbre. Although the exact definitions are not well-defined; c01 is known to be 'loudness', c02 stands for the low frequencies, c03 represents the mid range and c04 stands for 'noise'. The other levels are not that clear and also less and less visible. 
@@ -411,6 +424,14 @@ grid.arrange(plot1x,plot2x)
 
 Here you see a so-called chromagram of the two songs. This tells you what pitch class is most prominent in a given time frame. As you can see, in **Blank Space**, there seems to be a clear chorus at the places with an "M" visible at the F and G pitch class. While in **Ivy**, it's a lot more consistent on the D, with lots of other pitch classes being played alongside. 
 
+This could be a result of the **increased acousticness** of the tracks on both folklore and evermore, which we saw in the side-by-side comparison of her five most recent albums. 
+
+<div>
+![The more yellow, the more acoustic.](foto's/acoustic2.png)
+</div>
+
+Because her two latest records are mostly recorded acousticly, without a lot computer sounds and edits, the chords could be less clearly visible. 
+
 ### Taking a closer look at the overall **structure of the tracks**. Did Swift start writing songs outside of the **pop-formula**?
 ```{r, cashe = TRUE}
 blank_self <-
@@ -433,10 +454,88 @@ blank_self <-
       )
   )
 
+shake_self <-
+  get_tidy_audio_analysis("0cqRj7pUJDkTCEsJkx8snD") %>% # Change URI.
+  compmus_align(sections, segments) %>%                     # Change `bars`
+  select(sections) %>%                                      #   in all three
+  unnest(sections) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "mean", norm = "euclidean"              # Change summary & norm.
+      )
+  )
 
+style_self <-
+  get_tidy_audio_analysis("0ug5NqcwcFR2xrfTkc7k8e") %>% # Change URI.
+  compmus_align(sections, segments) %>%                     # Change `bars`
+  select(sections) %>%                                      #   in all three
+  unnest(sections) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "mean", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+season_self <-
+  get_tidy_audio_analysis("6sQckd3Z8NPxVVKUnavY1F") %>% # Change URI.
+  compmus_align(sections, segments) %>%                     # Change `bars`
+  select(sections) %>%                                      #   in all three
+  unnest(sections) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "mean", norm = "euclidean"              # Change summary & norm.
+      )
+  )
 
 ivy_self <-
   get_tidy_audio_analysis("43Ykum9T72UOPhBN31grpN") %>% # Change URI.
+  compmus_align(sections, segments) %>%                     # Change `bars`
+  select(sections) %>%                                      #   in all three
+  unnest(sections) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "mean", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+willow_self <-
+  get_tidy_audio_analysis("2gVhfX2Gy1T9kDuS9azrF7") %>% # Change URI.
   compmus_align(sections, segments) %>%                     # Change `bars`
   select(sections) %>%                                      #   in all three
   unnest(sections) %>%                                      #   of these lines.
@@ -474,7 +573,7 @@ plot1 <- blank_self %>%
   labs(x = "", y = "",
       title = "Blank Space")
 
-plot2 <- ivy_self %>%
+plot2 <- shake_self %>%
   compmus_self_similarity(timbre, "cosine") %>% 
   ggplot(
     aes(
@@ -490,29 +589,98 @@ plot2 <- ivy_self %>%
   scale_fill_viridis_c(guide = "none") +
   theme_classic() +
   labs(x = "", y = "",
-      title = "Ivy")
+      title = "Shake It Off")
 
+plot3 <- style_self %>%
+  compmus_self_similarity(timbre, "cosine") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "",
+      title = "Style")
 
+plot4 <- season_self %>%
+  compmus_self_similarity(timbre, "cosine") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "",
+      title = "damn season")
 
-grid.arrange(plot1,plot2
-             , ncol = 2, #Row 2, 2 Plots
-             nrow = 1)
+plot5 <- ivy_self %>%
+  compmus_self_similarity(timbre, "cosine") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "",
+      title = "ivy")
+
+plot6 <- willow_self %>%
+  compmus_self_similarity(timbre, "cosine") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "",
+      title = "willow")
+
+grid.arrange(plot1,plot2,plot3,plot4,plot5,plot6,nrow=2,ncol=3)
 
 ```
 
 ***
 
 **Used tracks :** 
-[Blank Space](https://open.spotify.com/track/1u8c2t2Cy7UBoG4ArRcF5g?si=Svk9cWhlQ-SHHQWdTas2Gw) , from her fifth studio album '1989'. 
-[Ivy](https://open.spotify.com/track/19CSr8rwW05VJL2F91KFNK?si=IGagf0C_SoaJuMJr6fiPnQ), from her ninth studio album 'evermore'.
+[Blank Space](https://open.spotify.com/track/1u8c2t2Cy7UBoG4ArRcF5g?si=Svk9cWhlQ-SHHQWdTas2Gw), [Shake It Off](https://open.spotify.com/track/0cqRj7pUJDkTCEsJkx8snD?si=T8WLGlomRJayEoZMJmkZtw) and [Style](https://open.spotify.com/track/0ug5NqcwcFR2xrfTkc7k8e?si=NFRs_w3pQsubezMOAbxliA), from her fifth studio album '1989'. 
 
-As you can see, I made a **self-similarity matrix** based on timbre. Which, for those of you who are not familiar with these kinds of graphs, is just a way to see the over-all structure of the song. And with structure i mean the positions of chorus, verse and maybe a bridge or different change in the song itself. 
+['tis the damn season](https://open.spotify.com/track/6sQckd3Z8NPxVVKUnavY1F?si=MAczwP-aT4aGjI0tvY9vsA), [ivy](https://open.spotify.com/track/43Ykum9T72UOPhBN31grpN?si=iBALIPODT4KGBfocuslbew) and [willow](https://open.spotify.com/track/2gVhfX2Gy1T9kDuS9azrF7?si=XntLdqcqTCCNztuQCphkaA), from her ninth studio album 'evermore'.
 
-In Blank Space you see Swift holding on to the **'pop-structure'** which simply means intro-verse-chorus-verse-chorus-bridge-chorus-end. But with Ivy it is clearly visible that the structure of the song is very different from the one seen in Blank Space. The structure is more experimental / alternative, with some kind of chorus visible (obviously) but it is not as clear in Blank Space. 
+As you can see, I made **self-similarity matrices** based on timbre. Which, for those of you who are not familiar with these kinds of graphs, is just a way to see the over-all structure of the song. And with structure i mean the positions of chorus, verse and maybe a bridge or different change in the song itself. 
 
-What I understood of this matrix, **is the busier the graph: the more diverse the song.**
+The first row contains three songs from one of her most popular albums, **1989**, and the second row shows three songs from her most recent album, **evermore**. In every track from 1989, you see Swift holding on to the **'pop-structure'** which simply means intro-verse-chorus-verse-chorus-bridge-chorus-end. But with the songs from evermore it is clearly visible that the structure of the songs is very different from the ones seen in the 1989 songs. The structure is more experimental / alternative, with some kind of chorus visible (obviously) but it is not as clear in Blank Space, Shake It Off and Style. 
 
-### NEW Just like with structure, Taylor also started experimenting with **tempo**. A tempogram of the **title-track of 'evermore'**.
+What I understood of this matrix, **is the busier the graph: the more diverse the song.** And 'tis the damn season, ivy and willow definitely have the busiest matrices. Which to me seems like **Taylor Swift started to experiment** more with the structure of the songs, moving away from the standard pop-structure seen in her previous albums. 
+
+### Just like with structure, Taylor also started experimenting with **tempo**. A tempogram of the **title-track of 'evermore'**.
 ```{r, cashe = TRUE}
 evermore <- get_tidy_audio_analysis("6Wlq9rqkxrqj5Kls4Kw14H")
 
@@ -700,14 +868,39 @@ I'd like to come back to Blank Space and Ivy one last time to search fro differe
 
 **By the way**, the keygrams predicted the key of both songs correct! Blank Space is in F Major and Ivy in D Major. 
 
-### NEW Classifier
+### When training a **classifier**, can we actually say with accurate precision that there has been **a change in style**?
 
 ```{r,cashe = TRUE}
-albums_features <-
-  albums %>%  # For your portfolio, change this to the name of your corpus.
+begin <- bind_rows(taylorswift %>% 
+                      mutate(category="Taylor Swift"),
+                    fearless %>% 
+                      mutate(category="Fearless"),
+                   speaknow %>%
+                      mutate(category="Speak Now"))
+
+middle <- bind_rows(red %>% 
+                      mutate(category="Red"),
+                    nine %>% 
+                      mutate(category="1989"),
+                   reputation %>%
+                      mutate(category="reputation"),
+                   lover %>%
+                      mutate(category="Lover"))
+
+
+taylorera <-
+  bind_rows(
+    begin %>% mutate(era = "2006-2010"),
+    middle %>% mutate(era = "2012-2019"),
+    everlore %>% mutate(era = "2020 Taylor")
+  ) 
+
+
+taylorera_features <-
+  taylorera %>%  # For your portfolio, change this to the name of your corpus.
   add_audio_analysis() %>% 
   mutate(
-    category = factor(category),
+    era = factor(era),
     segments = map2(segments, key, compmus_c_transpose),
     pitches =
       map(
@@ -726,9 +919,9 @@ albums_features <-
   mutate_at(vars(pitches, timbre), map, bind_rows) %>%
   unnest(cols = c(pitches, timbre))
 
-albums_recipe <-
+taylorera_recipe <-
   recipe(
-    category ~
+    era ~
       danceability +
       energy +
       loudness +
@@ -739,53 +932,50 @@ albums_recipe <-
       valence +
       tempo +
       duration +
-      C + `C#|Db` + D + `D#|Eb` +
-      E + `F` + `F#|Gb` + G +
-      `G#|Ab` + A + `A#|Bb` + B +
       c01 + c02 + c03 + c04 + c05 + c06 +
       c07 + c08 + c09 + c10 + c11 + c12,
-    data = albums_features,          # Use the same name as the previous block.
+    data = taylorera_features,          # Use the same name as the previous block.
   ) %>%
   step_center(all_predictors()) %>%
   step_scale(all_predictors())      # Converts to z-scores.
   # step_range(all_predictors())    # Sets range to [0, 1].
 
-albums_cv <- albums_features %>% vfold_cv(5)
+taylorera_cv <- taylorera_features %>% vfold_cv(5)
 
 knn_model <-
   nearest_neighbor(neighbors = 1) %>%
   set_mode("classification") %>% 
   set_engine("kknn")
-albums_knn <- 
+taylorera_knn <- 
   workflow() %>% 
-  add_recipe(albums_recipe) %>% 
+  add_recipe(taylorera_recipe) %>% 
   add_model(knn_model) %>% 
   fit_resamples(
-    albums_cv, 
+    taylorera_cv, 
     control = control_resamples(save_pred = TRUE)
   )
 
-plot1 <- albums_knn %>% get_conf_mat() %>% autoplot(type = "heatmap")
+plot1 <- taylorera_knn %>% get_conf_mat() %>% autoplot(type = "heatmap")
 
 forest_model <-
   rand_forest() %>%
   set_mode("classification") %>% 
   set_engine("ranger", importance = "impurity")
-albums_forest <- 
+taylorera_forest <- 
   workflow() %>% 
-  add_recipe(albums_recipe) %>% 
+  add_recipe(taylorera_recipe) %>% 
   add_model(forest_model) %>% 
   fit_resamples(
-    albums_cv, 
+    taylorera_cv, 
     control = control_resamples(save_pred = TRUE)
   )
 
-albums_forest %>% get_pr()
 
-plot2 <- workflow() %>% 
-  add_recipe(albums_recipe) %>% 
+
+plot3 <- workflow() %>% 
+  add_recipe(taylorera_recipe) %>% 
   add_model(forest_model) %>% 
-  fit(albums_features) %>% 
+  fit(taylorera_features) %>% 
   pluck("fit", "fit", "fit") %>%
   ranger::importance() %>% 
   enframe() %>% 
@@ -796,15 +986,207 @@ plot2 <- workflow() %>%
   theme_minimal() +
   labs(x = NULL, y = "Importance")
 
-grid.arrange(plot1,plot2)
+
+
+
+
+
+before <- bind_rows(taylorswift %>% 
+                      mutate(category="Taylor Swift"),
+                    fearless %>% 
+                      mutate(category="Fearless"),
+                   speaknow %>%
+                      mutate(category="Speak Now"),
+                   red %>% 
+                      mutate(category="Red"),
+                    nine %>% 
+                      mutate(category="1989"),
+                   reputation %>%
+                      mutate(category="reputation"),
+                   lover %>%
+                      mutate(category="Lover"))
+
+
+
+
+taylorera2 <-
+  bind_rows(
+    before %>% mutate(era = "2006-2019"),
+    everlore %>% mutate(era = "2020 Taylor")
+  ) 
+
+
+taylorera2_features <-
+  taylorera2 %>%  # For your portfolio, change this to the name of your corpus.
+  add_audio_analysis() %>% 
+  mutate(
+    era = factor(era),
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(
+        segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean",
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+taylorera2_recipe <-
+  recipe(
+    era ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = taylorera2_features,          # Use the same name as the previous block.
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())      # Converts to z-scores.
+  # step_range(all_predictors())    # Sets range to [0, 1].
+
+taylorera2_cv <- taylorera2_features %>% vfold_cv(5)
+
+knn_model <-
+  nearest_neighbor(neighbors = 1) %>%
+  set_mode("classification") %>% 
+  set_engine("kknn")
+taylorera2_knn <- 
+  workflow() %>% 
+  add_recipe(taylorera2_recipe) %>% 
+  add_model(knn_model) %>% 
+  fit_resamples(
+    taylorera2_cv, 
+    control = control_resamples(save_pred = TRUE)
+  )
+
+forest_model <-
+  rand_forest() %>%
+  set_mode("classification") %>% 
+  set_engine("ranger", importance = "impurity")
+taylorera2_forest <- 
+  workflow() %>% 
+  add_recipe(taylorera2_recipe) %>% 
+  add_model(forest_model) %>% 
+  fit_resamples(
+    taylorera2_cv, 
+    control = control_resamples(save_pred = TRUE)
+  )
+
+
+
+plot4 <- workflow() %>% 
+  add_recipe(taylorera2_recipe) %>% 
+  add_model(forest_model) %>% 
+  fit(taylorera2_features) %>% 
+  pluck("fit", "fit", "fit") %>%
+  ranger::importance() %>% 
+  enframe() %>% 
+  mutate(name = fct_reorder(name, value)) %>% 
+  ggplot(aes(name, value)) + 
+  geom_col() + 
+  coord_flip() +
+  theme_minimal() +
+  labs(x = NULL, y = "Importance")
+
+plot2 <- taylorera2_knn %>% get_conf_mat() %>% autoplot(type = "heatmap")
+
+
+
+grid.arrange(arrangeGrob(plot1,plot2),plot4,nrow=1,ncol=2)
 ```
 
 ***
-Alright, so I really don't understand this part of the course. I think this can be interesting but I have trouble interpreting. 
+As you may remember from one of the first pages, **there was a clear distinction between three era's**. 
 
-```{r}
-albums_forest %>% get_pr()
+<div>
+![](foto's/era3.png)
+</div>
+
+With the her three oldest albums (Taylor Swift, Fearless and Speak Now) in the bottom right corner, the four albums she released between 2012-2019 (Red, 1989, reputation and Lover) at the top and the two albums released in 2020 (folklore and evermore) in the bottom left. 
+**I trained a so-called 'classifier'** to see if by using the **Spotify-API features**, which have been discussed all throughout this portfolio, songs that are supposed to be in those era's are actually put in the actual era they are supposed to be in. 
+**To make it easier**: 41 out of 45 songs from 2006-2010 are actually classified correctly using spotify-API features and 29 out of 34 songs from her 2020 era are also classified correctly, which is a pretty good score. **Because some of the 2012-2019 are put in the early era** I also used made one where it's just "before 2020" versus "2020 Taylor", and the clear divide becomes even more visible. 
+
+**In the graph on the right** a 'random-forest' is shown, displaying which features have been most important in classifying each song in to the right era. 
+
+**Accuracy/Precisions**
+
+```{r, cashe = TRUE}
+accuracy1 <-
+  taylorera_knn %>% get_pr()
+
+library(knitr)
+kable(accuracy1, col.names = c('Era', 'Accuracy', 'Recall'),digits=2)
 ```
+
+```{r, cashe = TRUE}
+accuracy1 <-
+  taylorera2_knn %>% get_pr()
+
+library(knitr)
+kable(accuracy1, col.names = c('Era', 'Accuracy', 'Recall'),digits=2)
+```
+
+### **Conclusion**, some of these changes explained.
+:::: {style="display: flex;"}
+
+::: {}
+**When I started with this portfolio** I already had a feeling that I was going to find aspects of her music that changed, because of the fact that I started to become a "Swiftie" when these two new albums came out. But I was pleasantly surprised when the data I pulled from Spotify actually did show these changes in the graphs I made. 
+
+**Some of the things that stood out : **
+
+-> A major shift in acousticness going from her seventh to eight studio album, and continuing into her ninth one. 
+
+-> The fact that Taylor is starting to move away from the 'pop-principles' and tries to experiment when it comes to tempo, structure and timbre. 
+
+-> On average, the songs on folklore and evermore are less danceable, lower in energy and lower in valence than her previous albums. 
+
+**I have two explanations** for this sudden, 180 degree, change in Swifts style. **The first one** is the fact that she broke free from her former record label, and her manager Scooter Braun, between the albums reputation and Lover. This caused some major drama, which I won't go into details about, but you can [read about it here](https://www.cosmopolitan.com/entertainment/celebs/a29807801/taylor-swift-scooter-braun-scott-borchetta-tyrannical-control-amas-netflix-doc/). When she broke free, she was able to just write and make whatever she wants without having to obey to certain standards from her constricting record label. And this resulted in Lover (which can be seen as a bridge between her old and new work) and the two albums released in 2020. 
+
+**The second one** is the fact that folkore and evermore were released and made during the Covid19 pandemic. Taylor had a big world tour planned for 2020, and when that got canceled, she was stuck at home like the rest of us. Over quarantaine, her creativity started flowing and she connected with the amazingly talented Aaron Dessner (band member of The National) with whom she eventually wrote 11 out of 16 songs on folklore. This was a change from her previous pop and country collaborators, and resulted in a more experimental and alternative sound. Taylor just had a complete change of mindset during the first Covid-lockdown, and more on this can be read [here](https://indianexpress.com/article/explained/explained-why-taylor-swifts-folklore-has-become-a-best-seller-despite-the-pandemic-6980946/).
+
+**In conclusion** I believe that this change in making music, releasing albums and over-all style was a master-move for Taylor. Not only because she won her **third Album of the Year Grammy** with folklore, but also because with these last two albums she continues to prove that she is one of the most talented songwriters and artists of our time and she is a musical force to be reckoned with. 
+:::
+
+::: {}
+![](foto's/writing4.png)
+:::
+
+::::
+
+
+### **The end** (best graph of this entire portfolio)
+ 
+<div>
+![The amount of swear words in every album, from oldest to newest.](foto's/swear3.png)
+</div>
+
+***
+Source : [Taylor Swift subReddit](https://www.reddit.com/r/TaylorSwift/comments/kbmosv/updated_chart_displaying_swear_words_in_taylor/)
+
+
+I would like to leave you with this final graph, that was not made by me unfortunately, which shows the evolution of the amount of swear words present in her albums. Which I think concludes this portfolio quite nicely... :)
+
+**Thank you so much for reading through these pages**, and I really reccomend you to listen to both [folklore]() and [evermore]() on Spotify. Preferably on a cold windy night under a blanket with a nice cup of tea, or when you are walking through a forest on a nice warm day with birds chirping around you.
+
+**Gavin**
+
+
 
 
 
